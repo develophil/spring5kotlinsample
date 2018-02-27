@@ -1,8 +1,6 @@
 package net.slipp.hkp.handler
 
 import org.springframework.stereotype.Component
-import org.springframework.stereotype.Repository
-import org.springframework.ui.Model
 import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.BodyExtractors
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -13,24 +11,38 @@ import reactor.core.publisher.Mono
 @Component
 class RacingHandler {
 
-    val map : HashMap<String, String> = HashMap()
+    fun createGame(req: ServerRequest): Mono<ServerResponse>  =
+        req.body(BodyExtractors.toFormData())
+        .log()
+        .map(MultiValueMap<String, String>::toSingleValueMap)
+        .flatMap {
+            goPageWithData("game", createDataMap(it))
+        }
 
-    fun createGame(req: ServerRequest) =
-            req.body(BodyExtractors.toFormData())
-            .flatMap {
-                val formData = it.toSingleValueMap()
-                println("names : "+formData["names"])
-                map.put("names", formData["names"]!!)
-                Mono.just(formData)
-            }
-            .then(goPageWithData("game", map))
-
-    fun playGame(req: ServerRequest) =
+    fun playGame(req: ServerRequest): Mono<ServerResponse> =
         goPage("result")
 
     fun goPage(pageName: String): Mono<ServerResponse> =
         ok().render(pageName)
 
-    fun goPageWithData(pageName: String, model: Map<String, String>): Mono<ServerResponse> =
+    fun goPageWithData(pageName: String, model: Map<String, Any>): Mono<ServerResponse> =
         ok().render(pageName, model)
+
+    fun createDataMap(map: Map<String, String>): HashMap<String, Any> {
+
+        var dataMap : HashMap<String, Any> = HashMap()
+        var players: ArrayList<Player> = arrayListOf()
+
+        for (s in map["names"]!!.split(" ")!!) {
+            println(s)
+            players.add(Player(s))
+        }
+
+        dataMap.put("players", players)
+
+        return dataMap
+
+    }
 }
+
+data class Player(var name: String)
