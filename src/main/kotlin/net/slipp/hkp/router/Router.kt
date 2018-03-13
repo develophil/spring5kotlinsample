@@ -1,9 +1,6 @@
 package net.slipp.hkp.router
 
-import net.slipp.hkp.handler.HelloWorldHandler
-import net.slipp.hkp.handler.Player
-import net.slipp.hkp.handler.RacingHandler
-import net.slipp.hkp.handler.ViewHandler
+import net.slipp.hkp.handler.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.util.MultiValueMap
@@ -19,6 +16,17 @@ class Router {
             GET("/helloworld") { req ->
                 ServerResponse.ok().body(
                         handler.helloworld()
+                )
+            }
+        }
+    }
+
+    @Bean
+    fun reactiveFunction(handler: ReactiveHandler) : RouterFunction<ServerResponse> = router {
+        ("/").nest {
+            GET("/reactive") { req ->
+                ServerResponse.ok().body(
+                        handler.test()
                 )
             }
         }
