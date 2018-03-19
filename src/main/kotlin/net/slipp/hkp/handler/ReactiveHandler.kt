@@ -2,11 +2,8 @@ package net.slipp.hkp.handler
 
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
-import reactor.util.function.Tuple2
 import java.time.Duration
 import java.util.*
-import java.util.stream.Stream
 
 @Component
 class ReactiveHandler {
@@ -20,10 +17,13 @@ class ReactiveHandler {
 
 
         return Flux.zip( interval, a ).map{it.t2}
+
+//        val arr: Array<String> = arrayOf("a","b","c","d","e","f")
+//        return Flux.interval(Duration.ofMillis(500)).take(arr.size.toLong()).map { make() }
     }
 
-    fun findTest(): String {
-        val random = Random()
-        return "test" + random.nextInt()
+
+    fun make(): String {
+        return "test : " + Random().nextInt()
     }
 }

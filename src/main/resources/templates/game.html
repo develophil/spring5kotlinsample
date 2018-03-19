@@ -21,6 +21,7 @@
             src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
         body {
             padding-top: 40px;
@@ -53,21 +54,31 @@
     <div class="row">
         <div class="col-md-12">
             <div class="form-show-div" class="form-group">
+                {{.}}
                 <table>
-                    {{#players}}
+                    {{#racingGame.cars}}
                     <tr>
                         <td>{{name}}</td>
                     </tr>
-                    {{/players}}
+                    {{/racingGame.cars}}
                 </table>
 
             </div>
             <form class="form-lotto" method="post" action="/racing/game/start">
                 Count 수 : <input type="number" name="turn">
+
+                1play : {{racingGame.isReady}}
+                {{#racingGame.isReady}}
                 <div class="submit-button">
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">게임
-                        시작! </button>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">게임 시작!</button>
                 </div>
+                {{/racingGame.isReady}}
+                {{^racingGame.isReady}}
+                <div class="submit-button">
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">now playing! please wait! remain {{racingGame.remainTurns}} turns.</button>
+                </div>
+                {{/racingGame.isReady}}
+
             </form>
         </div>
 
@@ -75,4 +86,9 @@
 </div>
 
 </body>
+<script>
+    $.get("/reactive", function(data) {
+        console.log(data);
+    });
+</script>
 </html>

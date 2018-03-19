@@ -1,5 +1,6 @@
 package racing
 
+import net.slipp.hkp.racing.Car
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -53,8 +54,6 @@ fun main(args: Array<String>) {
     playground.printWinner()
 
 }
-
-class Car(var name: String)
 
 class RacingPlayground(val carNames: List<String>, val cycle: Int) {
 
