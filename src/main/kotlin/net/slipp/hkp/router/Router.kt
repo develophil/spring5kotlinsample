@@ -6,6 +6,8 @@ import net.slipp.hkp.handler.ReactiveHandler
 import net.slipp.hkp.handler.ViewHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.MediaType
+import org.springframework.http.MediaType.TEXT_EVENT_STREAM
 import org.springframework.web.reactive.function.server.*
 
 @Configuration
@@ -42,8 +44,14 @@ class Router {
             GET("/result") { viewHandler.getView("result") }
 
 //            POST("/game/create") { req -> racingHandler.createGame(req) }
+//            GET("/game/ready", racingHandler::readyGame)
             POST("/game/create", racingHandler::joinGame)
             POST("/game/start", racingHandler::playGame)
+
+            accept(TEXT_EVENT_STREAM).nest {
+                GET("/game/ready", racingHandler::readyGame)
+                GET("/game/race", racingHandler::startRace)
+            }
         }
 
 

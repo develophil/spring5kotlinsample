@@ -2,7 +2,13 @@ package racing
 
 import net.slipp.hkp.racing.Car
 
-data class RacingGame(var gameStatus: GameStatus, var cars: MutableSet<Car>, var raceList: MutableList<Race>, var winners: MutableSet<Car>, var totalTurns: Int, var currentTurn: Int) {
+data class RacingGame(
+        var gameStatus: GameStatus,
+        var cars: MutableSet<Car>,
+        var raceList: MutableList<Race>,
+        var winners: MutableSet<Car>,
+        var totalTurns: Int,
+        var currentTurn: Int) {
 
     constructor() : this (
         GameStatus.READY, mutableSetOf(), mutableListOf(), mutableSetOf(), 10, 0
@@ -24,6 +30,32 @@ data class RacingGame(var gameStatus: GameStatus, var cars: MutableSet<Car>, var
         totalTurns = laps
         gameStatus = GameStatus.RACING
         makeRaceList()
+    }
+
+    fun turn() {
+        currentTurn += 1
+    }
+
+    fun getForwardDistance(): Boolean {
+        return when {
+            ( Math.random() * 10 ) >= 4 -> true
+            else -> false
+        }
+    }
+
+    fun forward(race: Race) {
+        if(getForwardDistance())
+            race.distance += 1
+    }
+
+    fun play() {
+        for (i in 1..totalTurns) {
+            turn()
+            for (race in raceList) {
+                forward(race)
+            }
+        }
+        endRace()
     }
 
     fun endRace() {
