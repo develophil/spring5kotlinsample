@@ -87,8 +87,17 @@
 
 </body>
 <script>
-    $.get("/reactive", function(data) {
-        console.log(data);
-    });
+    var stream_url = "/racing/game/ready";
+    var es = new EventSource(stream_url);
+
+    es.onmessage = function (event) {
+        // 이벤트 설정이안된 기본 데이터 처리
+        console.log(event.data);
+        console.log(JSON.parse(event.data));
+    };
+    // es.addEventListener('myevent', function(e) {
+    //     // 'myevent' 이벤트의 데이터 처리
+    //     console.log(e);
+    // }, false);
 </script>
 </html>
