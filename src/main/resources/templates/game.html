@@ -68,16 +68,17 @@
                 Count 수 : <input type="number" name="turn">
 
                 1play : {{racingGame.isReady}}
-                {{#racingGame.isReady}}
                 <div class="submit-button">
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">게임 시작!</button>
+
+                    <button id="btn" class="btn btn-lg btn-primary btn-block" type="submit">
+                        {{#racingGame.isReady}}
+                        start!!
+                        {{/racingGame.isReady}}
+                        {{^racingGame.isReady}}
+                        now playing! please wait! remain {{racingGame.remainTurns}} turns.
+                        {{/racingGame.isReady}}
+                    </button>
                 </div>
-                {{/racingGame.isReady}}
-                {{^racingGame.isReady}}
-                <div class="submit-button">
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">now playing! please wait! remain {{racingGame.remainTurns}} turns.</button>
-                </div>
-                {{/racingGame.isReady}}
 
             </form>
         </div>
@@ -86,18 +87,6 @@
 </div>
 
 </body>
-<script>
-    var stream_url = "/racing/game/ready";
-    var es = new EventSource(stream_url);
-
-    es.onmessage = function (event) {
-        // 이벤트 설정이안된 기본 데이터 처리
-        console.log(event.data);
-        console.log(JSON.parse(event.data));
-    };
-    // es.addEventListener('myevent', function(e) {
-    //     // 'myevent' 이벤트의 데이터 처리
-    //     console.log(e);
-    // }, false);
+<script src="/js/race.js">
 </script>
 </html>
