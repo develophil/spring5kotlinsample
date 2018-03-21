@@ -2,6 +2,7 @@ package net.slipp.hkp.handler
 
 import net.slipp.hkp.racing.Car
 import org.springframework.http.MediaType
+import org.springframework.http.codec.ServerSentEvent
 import org.springframework.stereotype.Component
 import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.BodyExtractors
@@ -40,17 +41,11 @@ class RacingHandler {
         return Flux.zip( interval, a ).map{it.t2}
     }
 
-    private val gameStream = Flux.just(racingGame)
+    private val gameStream = Flux.just(ServerSentEvent.builder(racingGame).id("testId").event("message").retry(Duration.ofSeconds(1)).build())
 //            .zip(Flux.interval(ofMillis(500)), Flux.just(racingGame))
 //            .map { it.t2 }
 
-    fun readyGame(req: ServerRequest): Mono<ServerResponse> {
-        req.body(BodyExtractors.toFormData())
-                .log()
-                .map(MultiValueMap<String, String>::toSingleValueMap)
-
-        return ServerResponse.ok().contentType(MediaType.TEXT_EVENT_STREAM).bodyToServerSentEvents(gameStream)
-    }
+    fun reactGame(req: ServerRequest): Mono<ServerResponse> = ServerResponse.ok().bodyToServerSentEvents(gameStream)
 
 
     private val raceStream = Flux

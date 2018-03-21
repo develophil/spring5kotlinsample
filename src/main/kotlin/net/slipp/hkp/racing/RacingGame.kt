@@ -8,10 +8,11 @@ data class RacingGame(
         var raceList: MutableList<Race>,
         var winners: MutableSet<Car>,
         var totalTurns: Int,
-        var currentTurn: Int) {
+        var currentTurn: Int,
+        var announcement: String) {
 
     constructor() : this (
-        GameStatus.READY, mutableSetOf(), mutableListOf(), mutableSetOf(), 10, 0
+        GameStatus.READY, mutableSetOf(), mutableListOf(), mutableSetOf(), 10, 0, "레이싱 경기가 곧 시작됩니다."
     )
 
     fun isReady(): Boolean = (gameStatus == GameStatus.READY)
@@ -27,9 +28,14 @@ data class RacingGame(
     fun makeRaceList() = cars.forEach { raceList.add(Race(it, 0)) }
 
     fun startRace(laps: Int) {
-        totalTurns = laps
-        gameStatus = GameStatus.RACING
-        makeRaceList()
+
+        if (gameStatus == GameStatus.READY) {
+            totalTurns = laps
+            gameStatus = GameStatus.RACING
+            makeRaceList()
+            announcement = "경가 시작되었습니다."
+        }
+
     }
 
     fun turn() {
