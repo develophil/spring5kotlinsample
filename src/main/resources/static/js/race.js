@@ -19,6 +19,23 @@ if (!!window.EventSource) {
                 $('#btn').text("default");
         }
 
+        var $joinListArea = $('#joinList');
+        var $raceListArea = $('#raceList');
+
+        $joinListArea.empty();
+        $raceListArea.empty();
+
+        game["raceList"].forEach(function(e) {
+            $('#raceList').append('<div>'+e["car"]["name"]+'</div><div style="margin-left: '+ ( e["distance"] * 10) +'px;">&#128652;</div>');
+        });
+
+        game["cars"].forEach(function(e) {
+            $('#joinList').append('<div>'+e["name"]+'</div>');
+        });
+
+        $('#announcementArea').text(game["announcement"]);
+
+
     }, false);
 
     es.addEventListener('open', function(e) {

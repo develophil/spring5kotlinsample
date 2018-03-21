@@ -33,7 +33,7 @@ data class RacingGame(
             totalTurns = laps
             gameStatus = GameStatus.RACING
             makeRaceList()
-            announcement = "경가 시작되었습니다."
+            announcement = "경기가 시작되었습니다."
         }
 
     }

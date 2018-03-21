@@ -49,39 +49,37 @@
 
 </head>
 <body>
-
+{{.}}
 <div class="container">
     <div class="row">
-        <div class="col-md-12">
-            <div class="form-show-div" class="form-group">
-                {{.}}
-                <table>
-                    {{#racingGame.cars}}
-                    <tr>
-                        <td>{{name}}</td>
-                    </tr>
-                    {{/racingGame.cars}}
-                </table>
-
+        <h2 id="announcementArea" class="text-center"></h2>
+        <div class="col-md-6">
+            <div>대기차량목록</div>
+            <div id="joinList" class="form-show-div form-group">
             </div>
-            <form class="form-lotto" method="post" action="/racing/game/start">
-                Count 수 : <input type="number" name="turn">
-
-                1play : {{racingGame.isReady}}
-                <div class="submit-button">
-
-                    <button id="btn" class="btn btn-lg btn-primary btn-block" type="submit">
-                        {{#racingGame.isReady}}
-                        start!!
-                        {{/racingGame.isReady}}
-                        {{^racingGame.isReady}}
-                        now playing! please wait! remain {{racingGame.remainTurns}} turns.
-                        {{/racingGame.isReady}}
-                    </button>
-                </div>
-
-            </form>
         </div>
+        <div class="col-md-6">
+            <div>경주차량목록</div>
+            <div id="raceList" class="form-show-div form-group">
+            </div>
+        </div>
+        <form class="form-lotto" method="post" action="/racing/game/start">
+            Count 수 : <input type="number" name="turn">
+
+            1play : {{racingGame.isReady}}
+            <div class="submit-button">
+
+                <button id="btn" class="btn btn-lg btn-primary btn-block" type="submit">
+                    {{#racingGame.isReady}}
+                    start!!
+                    {{/racingGame.isReady}}
+                    {{^racingGame.isReady}}
+                    now playing! please wait! remain {{racingGame.remainTurns}} turns.
+                    {{/racingGame.isReady}}
+                </button>
+            </div>
+
+        </form>
 
     </div>
 </div>
