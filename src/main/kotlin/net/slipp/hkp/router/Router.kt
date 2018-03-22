@@ -38,7 +38,7 @@ class Router {
             racingHandler: RacingHandler, viewHandler: ViewHandler) = router {
 
         ("/racing").nest {
-            GET("") { viewHandler.getView("index") }
+            GET("") { racingHandler.index() }
             GET("/game") { viewHandler.getView("game") }
             GET("/result") { viewHandler.getView("result") }
 

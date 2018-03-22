@@ -32,15 +32,6 @@ class RacingHandler {
             goPageWithObject("game", racingGame)
         }
 
-
-    fun test() : Flux<Any> {
-
-        val interval = Flux.interval(Duration.ofMillis(1000))
-        interval.subscribe()
-        val a: Flux<String> = Flux.fromArray(arrayOf("a","b"))
-        return Flux.zip( interval, a ).map{it.t2}
-    }
-
     private val gameStream = Flux.just(ServerSentEvent.builder(racingGame).id("testId").event("message").retry(Duration.ofSeconds(1)).build())
 //            .zip(Flux.interval(ofMillis(500)), Flux.just(racingGame))
 //            .map { it.t2 }
@@ -104,5 +95,10 @@ class RacingHandler {
 
         return dataMap
 
+    }
+
+    fun index(): Mono<ServerResponse> {
+        racingGame.init()
+        return goPage("index")
     }
 }
