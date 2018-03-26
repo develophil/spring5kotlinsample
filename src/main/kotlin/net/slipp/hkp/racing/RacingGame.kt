@@ -7,12 +7,13 @@ data class RacingGame(
         var gameStatus: GameStatus,
         var cars: MutableSet<Car>,
         var raceList: MutableSet<Race>,
+        var replayList: MutableList<MutableSet<Race>>,
         var totalTurns: Int,
         var currentTurn: Int,
         var announcement: String) {
 
     constructor() : this (
-        GameStatus.READY, mutableSetOf(), mutableSetOf(), 10, 0, "레이싱 경기가 곧 시작됩니다."
+        GameStatus.READY, mutableSetOf(), mutableSetOf(), mutableListOf(), 10, 0, "레이싱 경기가 곧 시작됩니다."
     )
 
     fun isReady(): Boolean = (gameStatus == GameStatus.READY)
@@ -20,48 +21,50 @@ data class RacingGame(
 
     fun joinCar(names: List<String>) {
         names.forEach {
-            println("car name : "+ it)
             cars.add(Car(it))
         }
     }
 
-    fun makeRaceList() = cars.forEach { raceList.add(Race(it, 0)) }
+    fun addCarToRaceList() = cars.forEach { raceList.add(Race(it, 0)) }
 
     fun startRace(laps: Int) {
+        totalTurns = laps
+        gameStatus = GameStatus.RACING
+        announcement = "경기가 시작되었습니다."
+    }
+
+    fun playGame(laps: Int) {
+
+        addCarToRaceList()  // 중간에 합류하도록 무조건 추가.
 
         if (gameStatus == GameStatus.READY) {
-            totalTurns = laps
-            gameStatus = GameStatus.RACING
-            announcement = "경기가 시작되었습니다."
+            startRace(laps)
             play()
         }
-        makeRaceList()
     }
 
-    fun turn() {
+    fun addCurrentTurn() {
         currentTurn += 1
-    }
-
-    fun canForward(): Boolean {
-        return when {
-            ( Math.random() * 10 ) >= 4 -> true
-            else -> false
-        }
-    }
-
-    fun forward(race: Race) {
-        if(canForward())
-            race.distance += 1
     }
 
     fun play() {
         thread(start = true) {
+
             for (i in 1..totalTurns) {
+
                 Thread.sleep(1000)
-                turn()
+                addCurrentTurn()
+
+                var msr = mutableSetOf<Race>()
+
                 for (race in raceList) {
-                    forward(race)
+                    race.forward()
+                    msr.add(race.copy())
                 }
+
+                replayList.add(msr)
+
+
             }
             endRace()
             announceWinners()
@@ -73,21 +76,29 @@ data class RacingGame(
         announcement = "경기가 종료되었습니다."
     }
     fun announceWinners() {
-        val winners = makeWinners().joinToString {
-            it.car.name
-        }
-        announcement = "우승자는 " + winners +"입니다!!!"
+        // 반환된 race 리스트에서 차 이름만 ', ' 로 join 하여 출력함.
+        announcement = "우승자는 " + makeWinners().joinToString {it.car.name} + "입니다!!!"
     }
 
     fun makeWinners(): List<Race> {
-        val winners = raceList.groupBy { it.distance }.maxBy { it.key }
-        println("winners : "+winners)
-        println("winners : "+winners!!.value)
-        return winners!!.value
+        // raceList 중 가장 큰 distance를 키로 가지는 race 그룹을 반환
+        return raceList.groupBy { it.distance }.maxBy { it.key }!!.value
     }
 
     data class Race(val car: Car, var distance: Int) {
-        fun forward(): Int  = 0
+
+        fun canForward(): Boolean {
+            return when {
+                ( Math.random() * 10 ) >= 4 -> true
+                else -> false
+            }
+        }
+
+        fun forward() {
+            if (canForward()) {
+                distance += 1
+            }
+        }
 
         override fun equals(other: Any?): Boolean {
             return car.equals((other as Race).car)
@@ -101,10 +112,6 @@ data class RacingGame(
     enum class GameStatus {
         READY, RACING, END
 
-    }
-
-    fun init() {
-        gameStatus = GameStatus.READY
     }
 
 }

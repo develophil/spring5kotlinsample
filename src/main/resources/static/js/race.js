@@ -1,55 +1,53 @@
-var stream_url = "/racing/game/react";
+var EsBuilder = function (streamUrl) {
 
-if (!!window.EventSource) {
-    var es = new EventSource(stream_url);
-    es.addEventListener('message', function(e) {
-        console.log(event);
+    var es;
+    var eventListeners = {};
 
-        var game = JSON.parse(event.data);
-        console.log(game);
+    return {
+        addEventListener: function (eventName, event) {
+            eventListeners[eventName] = event;
+            return this;
+        },
+        build: function () {
+            es = new EventSource(streamUrl);
 
-        switch (game["gameStatus"]) {
-            case "READY":
-                $('#btn').text("start!!!");
-                break;
-            case "RACING":
-                $('#btn').text("now playing! please wait! remain "+game["remainTurns"]+" turns.");
-                break;
-            default:
-                $('#btn').text("default");
+            $.each(eventListeners, function (k, v) {
+                es.addEventListener(k, v, false);
+            });
+            return es;
         }
+    }
+};
 
-        var $joinListArea = $('#joinList');
-        var $raceListArea = $('#raceList');
+function enableReplayButton() {
+    $('#replayBtn').prop("disabled", false);
+}
 
-        $joinListArea.empty();
-        $raceListArea.empty();
+function disableReplayButton() {
+    $('#replayBtn').prop("disabled", true);
+}
 
-        game["raceList"].forEach(function(e) {
-            $('#raceList').append('<div>'+e["car"]["name"]+'</div><div style="margin-left: '+ ( e["distance"] * 10) +'px;">&#128652;</div>');
-        });
+function setBtnText(text) {
+    $('#btn').text(text);
+}
 
-        game["cars"].forEach(function(e) {
-            $('#joinList').append('<div>'+e["name"]+'</div>');
-        });
+function drawCars(cars) {
+    var $joinListArea = $('#joinList');
+    $joinListArea.empty();
+    cars.forEach(function(e) {
+        $joinListArea.append('<div>'+e["name"]+'</div>');
+    });
 
-        $('#announcementArea').text(game["announcement"]);
+}
 
+function drawRace(raceList) {
+    var $raceListArea = $('#raceList');
+    $raceListArea.empty();
+    raceList.forEach(function(e) {
+        $raceListArea.append('<div>'+e["car"]["name"]+'</div><div style="margin-left: '+ ( e["distance"] * 10) +'px;">&#128652;</div>');
+    });
+}
 
-    }, false);
-
-    es.addEventListener('open', function(e) {
-        // Connection was opened.
-        console.log("open");
-    }, false);
-
-    es.addEventListener('error', function(e) {
-        if (e.readyState == EventSource.CLOSED) {
-            // Connection was closed.
-            console.error(e);
-        }
-    }, false);
-
-} else {
-    // Result to xhr polling :(
+function announcement(text) {
+    $('#announcementArea').text(text);
 }

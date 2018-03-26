@@ -17,11 +17,11 @@
           crossorigin="anonymous">
 
     <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script
             src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
         body {
             padding-top: 40px;
@@ -57,25 +57,11 @@
             <div id="joinList" class="form-show-div form-group">
             </div>
         </div>
-        <!--<div class="col-md-6">-->
-            <!--<div>경주차량목록</div>-->
-            <!--<div id="raceList" class="form-show-div form-group">-->
-            <!--</div>-->
-        <!--</div>-->
         <form class="form-lotto" method="post" action="/racing/game/start">
-            Count 수 : <input type="number" name="turn">
+            Count 수 : <input type="number" name="turn" value="10">
 
-            1play : {{racingGame.isReady}}
             <div class="submit-button">
-
-                <button id="btn" class="btn btn-lg btn-primary btn-block" type="submit">
-                    {{#racingGame.isReady}}
-                    start!!
-                    {{/racingGame.isReady}}
-                    {{^racingGame.isReady}}
-                    now playing! please wait! remain {{racingGame.remainTurns}} turns.
-                    {{/racingGame.isReady}}
-                </button>
+                <button id="btn" class="btn btn-lg btn-primary btn-block" type="submit">경주 시작!</button>
             </div>
 
         </form>
@@ -84,6 +70,39 @@
 </div>
 
 </body>
-<script src="/js/race.js">
+<script src="/js/race.js"></script>
+<script>
+    var ready = function () {
+        EsBuilder("/racing/game/react")
+            .addEventListener('message', function (e) {
+                console.log(event);
+                var game = JSON.parse(event.data);
+
+                var gameStatus = game["gameStatus"];
+                switch (gameStatus) {
+                    case "READY":
+                        setBtnText("경주 시작!");
+                        break;
+                    case "RACING":
+                        announcement(game["announcement"] + " [ " + game["currentTurn"] + " / " + game["totalTurns"] + " ]");
+                        setBtnText("중간 합류하기!");
+                        break;
+                    case "END":
+                        announcement(game["announcement"]);
+                        setBtnText("결과 보러가기!");
+                        break;
+
+                    default:
+                        setBtnText("gameStatus : " + gameStatus);
+                }
+                drawCars(game["cars"]);
+
+            })
+            .build();
+    };
+
+    // 경기 대기..
+    ready();
+
 </script>
 </html>

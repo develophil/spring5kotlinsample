@@ -17,11 +17,11 @@
           crossorigin="anonymous">
 
     <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script
             src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
         body {
             padding-top: 40px;
@@ -61,13 +61,58 @@
                 <br />
                 <div id="raceList"></div>
                 <br />
-                <button class="btn btn-lg btn-primary btn-block" type="button" onclick="location.href='/racing';">Home</button>
+                <button id="homeBtn" class="btn btn-lg btn-primary btn-block col-md-6" type="button" onclick="location.href='/racing/index';">Home</button>
+                <button id="replayBtn" class="btn btn-lg btn-primary btn-block col-md-6" type="button" onclick="replay();" disabled>Replay</button>
             </div>
         </div>
     </div>
 </div>
 
 </body>
-<script src="/js/race.js">
+<script src="/js/race.js"></script>
+<script>
+    var race = function () {
+        var es = EsBuilder("/racing/game/react")
+            .addEventListener('message', function (e) {
+                console.log(event);
+                var game = JSON.parse(event.data);
+
+                var comment = game["announcement"]
+                var gameStatus = game["gameStatus"];
+                switch (gameStatus) {
+                    case "READY":
+                        disableReplayButton();
+                        break;
+                    case "RACING":
+                        comment = comment.concat(" [ " + game["currentTurn"] + " / " + game["totalTurns"] + " ]");
+                        break;
+                    case "END":
+                        es.close();
+                        enableReplayButton();
+                        break;
+
+                    default:
+                        setBtnText("gameStatus : " + gameStatus);
+                }
+                announcement( comment );
+                drawCars(game["cars"]);
+                drawRace(game["raceList"]);
+            })
+            .build();
+    };
+
+    var replay = function () {
+        EsBuilder("/racing/game/replay")
+            .addEventListener('message', function (e) {
+                drawRace(JSON.parse(event.data));
+                announcement("replay 중...");
+                disableReplayButton();
+            })
+            .build();
+    };
+
+    // race 바로 시작!
+    race();
+
 </script>
 </html>

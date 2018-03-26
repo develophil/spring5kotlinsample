@@ -2,12 +2,14 @@ package net.slipp.hkp.router
 
 import net.slipp.hkp.handler.HelloWorldHandler
 import net.slipp.hkp.handler.RacingHandler
-import net.slipp.hkp.handler.ReactiveHandler
 import net.slipp.hkp.handler.ViewHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType.TEXT_EVENT_STREAM
-import org.springframework.web.reactive.function.server.*
+import org.springframework.web.reactive.function.server.RouterFunction
+import org.springframework.web.reactive.function.server.ServerResponse
+import org.springframework.web.reactive.function.server.body
+import org.springframework.web.reactive.function.server.router
 
 @Configuration
 class Router {
@@ -23,35 +25,22 @@ class Router {
     }
 
     @Bean
-    fun reactiveFunction(handler: ReactiveHandler) : RouterFunction<ServerResponse> = router {
-        ("/").nest {
-            GET("/reactive"){ req ->
-                ServerResponse.ok().bodyToServerSentEvents(
-                        handler.test()
-                )
-            }
-        }
-    }
-
-    @Bean
     fun racingRouter(
             racingHandler: RacingHandler, viewHandler: ViewHandler) = router {
 
         ("/racing").nest {
-            GET("") { racingHandler.index() }
+            GET("") { viewHandler.getView("index") }
+            GET("/index") { racingHandler.index() }
             GET("/game") { viewHandler.getView("game") }
             GET("/result") { viewHandler.getView("result") }
 
-//            POST("/game/create") { req -> racingHandler.createGame(req) }
-//            GET("/game/ready", racingHandler::reactGame)
             POST("/game/create", racingHandler::joinGame)
             POST("/game/start", racingHandler::playGame)
 
             accept(TEXT_EVENT_STREAM).nest {
                 GET("/game/react", racingHandler::reactGame)
+                GET("/game/replay", racingHandler::replay)
             }
         }
-
-
     }
 }
