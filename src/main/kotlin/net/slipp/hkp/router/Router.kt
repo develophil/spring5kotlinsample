@@ -3,6 +3,7 @@ package net.slipp.hkp.router
 import net.slipp.hkp.handler.HelloWorldHandler
 import net.slipp.hkp.handler.RacingHandler
 import net.slipp.hkp.handler.ViewHandler
+import net.slipp.hkp.racing.Car
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType.TEXT_EVENT_STREAM
@@ -21,6 +22,22 @@ class Router {
                         handler.helloworld()
                 )
             }
+            POST("/router-car-reactive") { req ->
+                ServerResponse.ok().body(
+                        handler.saveCarFlux(Car("aaa"))
+                )
+            }
+            GET("/router-car-reactive") { req ->
+                ServerResponse.ok().body(
+                        handler.getCarFlux()
+                )
+            }
+            GET("/router-car-reactive-paged") { req ->
+                ServerResponse.ok().body(
+                        handler.getCarFlux(req.queryParam("page").get().toInt(), req.queryParam("size").get().toInt())
+                )
+            }
+
         }
     }
 
