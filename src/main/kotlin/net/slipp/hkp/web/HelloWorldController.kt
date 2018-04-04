@@ -5,16 +5,11 @@ import net.slipp.hkp.repository.ResultReactiveRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Duration
 import org.springframework.data.domain.PageRequest
-import org.springframework.web.bind.annotation.RequestParam
-
+import org.springframework.web.bind.annotation.*
 
 
 @RestController
@@ -55,8 +50,8 @@ class HelloWorldController(private val resultReactiveRepository: ResultReactiveR
     }
 
     @PostMapping("/car-reactive")
-    fun saveCarFlux(): Mono<Car> {
-        return resultReactiveRepository.save(Car("test!"))
+    fun saveCarFlux(@RequestBody car: Car): Mono<Car> {
+        return resultReactiveRepository.save(car)
     }
 
     @GetMapping("/car-reactive")

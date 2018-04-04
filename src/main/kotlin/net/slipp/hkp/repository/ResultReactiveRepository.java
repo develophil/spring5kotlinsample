@@ -8,6 +8,6 @@ import reactor.core.publisher.Flux;
 
 public interface ResultReactiveRepository extends ReactiveCrudRepository<Car, String> {
 
-	@Query("{ id: { $exists: true }}")
+	@Query("{ name: { $exists: true }}")
 	Flux<Car> retrieveAllCarPaged(final Pageable page);
 }
