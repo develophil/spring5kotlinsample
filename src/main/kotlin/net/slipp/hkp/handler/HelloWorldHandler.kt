@@ -11,7 +11,7 @@ import java.time.Duration
 @Component
 class HelloWorldHandler(private val resultReactiveRepository: ResultReactiveRepository) {
 
-    private val DELAY_PER_ITEM_MS = 100
+    private val DELAY_PER_ITEM_MS = 1000
 
     fun helloworld() : Mono<String> {
         return Mono.just("Hello World handler!")

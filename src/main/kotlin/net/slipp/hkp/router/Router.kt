@@ -7,10 +7,10 @@ import net.slipp.hkp.racing.Car
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType.TEXT_EVENT_STREAM
-import org.springframework.web.reactive.function.server.RouterFunction
-import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.body
-import org.springframework.web.reactive.function.server.router
+import org.springframework.web.reactive.function.server.*
+import reactor.core.publisher.Mono
+
+
 
 @Configuration
 class Router {
@@ -22,22 +22,23 @@ class Router {
                         handler.helloworld()
                 )
             }
+
             POST("/router-car-reactive") { req ->
-                ServerResponse.ok().body(
-                        handler.saveCarFlux(Car("aaa"))
+                ServerResponse.ok().bodyToServerSentEvents(
+                        handler.saveCarFlux(req.bodyToMono<Car>().block())
                 )
             }
             GET("/router-car-reactive") { req ->
-                ServerResponse.ok().body(
+                ServerResponse.ok().bodyToServerSentEvents(
                         handler.getCarFlux()
                 )
             }
             GET("/router-car-reactive-paged") { req ->
-                ServerResponse.ok().body(
+                ServerResponse.ok().bodyToServerSentEvents(
                         handler.getCarFlux(req.queryParam("page").get().toInt(), req.queryParam("size").get().toInt())
                 )
             }
-
+            GET("/reactive-test-page") { ServerResponse.ok().render("reactive") }
         }
     }
 
