@@ -1,7 +1,7 @@
 package net.slipp.hkp.handler
 
 import net.slipp.hkp.racing.Car
-import net.slipp.hkp.repository.ResultReactiveRepository
+import net.slipp.hkp.repository.CarReactiveTestRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono
 import java.time.Duration
 
 @Component
-class HelloWorldHandler(private val resultReactiveRepository: ResultReactiveRepository) {
+class HelloWorldHandler(private val carReactiveTestRepository: CarReactiveTestRepository) {
 
     private val DELAY_PER_ITEM_MS = 1000
 
@@ -18,15 +18,15 @@ class HelloWorldHandler(private val resultReactiveRepository: ResultReactiveRepo
     }
 
     fun saveCarFlux(car: Car): Mono<Car> {
-        return resultReactiveRepository.save(car)
+        return carReactiveTestRepository.save(car)
     }
 
     fun getCarFlux(): Flux<Car> {
-        return resultReactiveRepository.findAll().delayElements(Duration.ofMillis(DELAY_PER_ITEM_MS.toLong()))
+        return carReactiveTestRepository.findAll().delayElements(Duration.ofMillis(DELAY_PER_ITEM_MS.toLong()))
     }
 
     fun getCarFlux(page: Int,size: Int): Flux<Car> {
-        return resultReactiveRepository.retrieveAllCarPaged(PageRequest.of(page, size))
+        return carReactiveTestRepository.retrieveAllCarPaged(PageRequest.of(page, size))
                 .delayElements(Duration.ofMillis(DELAY_PER_ITEM_MS.toLong()))
     }
 
