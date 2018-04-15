@@ -1,8 +1,9 @@
 package net.slipp.hkp.handler
 
+import net.slipp.hkp.racing.RacingResult
+import net.slipp.hkp.repository.ResultReactiveRepository
 import org.springframework.http.codec.ServerSentEvent
 import org.springframework.stereotype.Component
-import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.BodyExtractors
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
@@ -12,20 +13,28 @@ import racing.RacingGame
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Duration
-import java.time.Duration.ofMillis
+import kotlin.concurrent.thread
 
 @Component
-class RacingHandler {
+class RacingHandler(val resultReactiveRepository: ResultReactiveRepository) {
 
     var racingGame: RacingGame = RacingGame()
 
+    fun findLastRacingResult(): RacingResult {
+        return resultReactiveRepository.findAll().last(RacingResult()).block()
+    }
 
     fun index(): Mono<ServerResponse> {
         if (racingGame.gameStatus == RacingGame.GameStatus.END) {
             racingGame = RacingGame ()
             println ("racingGame : " + racingGame)
         }
-        return goPage("index")
+
+        val results:RacingResult = findLastRacingResult()
+        val racingRound: Int = results.round + 1
+        racingGame.racingRound = racingRound
+
+        return goPageWithObject("index", racingRound)
     }
 
     fun joinGame(req: ServerRequest): Mono<ServerResponse> =
@@ -57,15 +66,28 @@ class RacingHandler {
 
     fun reactGame(req: ServerRequest): Mono<ServerResponse> = ServerResponse.ok().bodyToServerSentEvents(makeGameStream()).log()
     fun replay(req: ServerRequest): Mono<ServerResponse> = ServerResponse.ok().bodyToServerSentEvents(makeReplayStream()).log()
+    fun gameHistory(req: ServerRequest): Mono<ServerResponse> = ServerResponse.ok().bodyToServerSentEvents(resultReactiveRepository.findAll().delayElements(Duration.ofMillis(500))).log()
+
     fun playGame(req: ServerRequest): Mono<ServerResponse> =
             req.body(BodyExtractors.toFormData())
                     .log()
                     .flatMap {
                         val formData = it.toSingleValueMap()
                         val laps = formData["turn"]!!.toInt()
-                        racingGame.playGame(laps)
+                        thread(start = true) {
+                            racingGame.playGame(laps)
+                            saveResult(racingGame.racingRound, racingGame.winners)
+                        }
                         goPageWithObject("result", racingGame)
                     }
+
+    fun saveResult(racingRound: Int, winners: List<RacingGame.Race>) {
+
+        println("racingRound!! : " + racingRound)
+        println("saveresult!! : " + winners)
+
+        resultReactiveRepository.save(RacingResult(racingRound, winners)).block()
+    }
 
     fun goPage(pageName: String): Mono<ServerResponse> =
             ok().render(pageName)

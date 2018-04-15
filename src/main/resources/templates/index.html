@@ -53,9 +53,9 @@
 <div class="container">
     <div class="row">
 
-        <div class="col-md-12">
+        <div class="col-md-9">
             <form class="form-lotto" method="post" action="/racing/game/create">
-                <h2 class="text-center">박진감 넘치는 자동차 레이싱 게임 with Pobi</h2>
+                <h2 class="text-center">제 {{integer}} 회! 박진감 넘치는 자동차 레이싱 게임 with Pobi</h2>
                 <div class="form-show-div" class="form-group">
                     <h2>이름을 입력하시오.</h2>
                     (이름마다 띄어쓰기로 구분해 주세요.)
@@ -67,9 +67,52 @@
                 </div>
             </form>
         </div>
-
+        <div class="col-md-3">
+            <h3>역대 우승자</h3>
+            <div id="historyArea"></div>
+        </div>
     </div>
 </div>
 
 </body>
+<script src="/js/race.js"></script>
+<script>
+    var ready = function () {
+        var es = EsBuilder("/racing/game/history")
+            .addEventListener('message', function (event) {
+                console.log('message!!!');
+                console.log(event);
+                var racingResult = JSON.parse(event.data);
+                drawHistory(racingResult);
+            })
+            .build();
+
+        es.addEventListener('error', function (e) {
+            console.log('error!!');
+            es.close()
+        });
+    };
+
+    function drawHistory(racingResult) {
+        var $historyArea = $('#historyArea');
+        // $historyArea.empty();
+        console.log(racingResult);
+        $historyArea.append('<h5>'+racingResult["round"]+'회</h5>');
+
+        var winners = racingResult["winners"];
+        $historyArea.append('<div>'+getWinnersNameInSingleRow(winners)+'</div>');
+    }
+
+    function getWinnersNameInSingleRow(winners) {
+        var names = Array();
+        winners.forEach(function(e) {
+            names.push(e["car"]["name"]);
+        });
+        return names.join(",");
+    }
+
+    // 경기 대기..
+    ready();
+
+</script>
 </html>

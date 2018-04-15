@@ -58,6 +58,7 @@ class Router {
             accept(TEXT_EVENT_STREAM).nest {
                 GET("/game/react", racingHandler::reactGame)
                 GET("/game/replay", racingHandler::replay)
+                GET("/game/history", racingHandler::gameHistory)
             }
         }
     }
