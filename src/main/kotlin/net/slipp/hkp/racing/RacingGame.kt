@@ -1,6 +1,7 @@
 package racing
 
 import net.slipp.hkp.racing.Car
+import net.slipp.hkp.racing.Race
 
 data class RacingGame(
         var racingRound: Int,
@@ -86,33 +87,6 @@ data class RacingGame(
     fun checkWinners() {
         // raceList 중 가장 큰 distance를 키로 가지는 race 그룹을 반환
         winners = raceList.groupBy { it.distance }.maxBy { it.key }!!.value
-    }
-
-
-
-
-    data class Race(val car: Car, var distance: Int) {
-
-        fun canForward(): Boolean {
-            return when {
-                ( Math.random() * 10 ) >= 4 -> true
-                else -> false
-            }
-        }
-
-        fun forward() {
-            if (canForward()) {
-                distance += 1
-            }
-        }
-
-        override fun equals(other: Any?): Boolean {
-            return car.equals((other as Race).car)
-        }
-
-        override fun hashCode(): Int {
-            return car.hashCode()
-        }
     }
 
     enum class GameStatus {

@@ -1,5 +1,6 @@
 package net.slipp.hkp.handler
 
+import net.slipp.hkp.racing.Race
 import net.slipp.hkp.racing.RacingResult
 import net.slipp.hkp.repository.ResultReactiveRepository
 import org.springframework.http.codec.ServerSentEvent
@@ -81,7 +82,7 @@ class RacingHandler(val resultReactiveRepository: ResultReactiveRepository) {
                         goPageWithObject("result", racingGame)
                     }
 
-    fun saveResult(racingRound: Int, winners: List<RacingGame.Race>) {
+    fun saveResult(racingRound: Int, winners: List<Race>) {
 
         println("racingRound!! : " + racingRound)
         println("saveresult!! : " + winners)
