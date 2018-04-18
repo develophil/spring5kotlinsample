@@ -58,6 +58,7 @@ dependencies {
 	compile("org.jetbrains.kotlin:kotlin-reflect")
 	compile("com.fasterxml.jackson.module:jackson-module-kotlin")
 	compile("org.springframework.boot:spring-boot-devtools")
+	compile "org.springframework.boot:spring-boot-starter-data-mongodb-reactive"
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('io.projectreactor:reactor-test')
 	testCompile 'org.jetbrains.spek:spek-api:1.1.5'

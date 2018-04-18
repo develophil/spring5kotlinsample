@@ -3,13 +3,14 @@ package net.slipp.hkp.router
 import net.slipp.hkp.handler.HelloWorldHandler
 import net.slipp.hkp.handler.RacingHandler
 import net.slipp.hkp.handler.ViewHandler
+import net.slipp.hkp.racing.Car
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType.TEXT_EVENT_STREAM
-import org.springframework.web.reactive.function.server.RouterFunction
-import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.body
-import org.springframework.web.reactive.function.server.router
+import org.springframework.web.reactive.function.server.*
+import reactor.core.publisher.Mono
+
+
 
 @Configuration
 class Router {
@@ -21,6 +22,23 @@ class Router {
                         handler.helloworld()
                 )
             }
+
+            POST("/router-car-reactive") { req ->
+                ServerResponse.ok().bodyToServerSentEvents(
+                        handler.saveCarFlux(req.bodyToMono<Car>().block())
+                )
+            }
+            GET("/router-car-reactive") { req ->
+                ServerResponse.ok().bodyToServerSentEvents(
+                        handler.getCarFlux()
+                )
+            }
+            GET("/router-car-reactive-paged") { req ->
+                ServerResponse.ok().bodyToServerSentEvents(
+                        handler.getCarFlux(req.queryParam("page").get().toInt(), req.queryParam("size").get().toInt())
+                )
+            }
+            GET("/reactive-test-page") { ServerResponse.ok().render("reactive") }
         }
     }
 
@@ -29,8 +47,7 @@ class Router {
             racingHandler: RacingHandler, viewHandler: ViewHandler) = router {
 
         ("/racing").nest {
-            GET("") { viewHandler.getView("index") }
-            GET("/index") { racingHandler.index() }
+            GET("") { racingHandler.index() }
             GET("/game") { viewHandler.getView("game") }
             GET("/result") { viewHandler.getView("result") }
 
@@ -40,6 +57,7 @@ class Router {
             accept(TEXT_EVENT_STREAM).nest {
                 GET("/game/react", racingHandler::reactGame)
                 GET("/game/replay", racingHandler::replay)
+                GET("/game/history", racingHandler::gameHistory)
             }
         }
     }

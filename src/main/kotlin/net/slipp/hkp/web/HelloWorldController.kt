@@ -1,17 +1,21 @@
 package net.slipp.hkp.web
 
+import net.slipp.hkp.racing.Car
+import net.slipp.hkp.repository.CarReactiveTestRepository
 import org.springframework.http.MediaType
 import org.springframework.ui.Model
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.Duration
+import org.springframework.data.domain.PageRequest
+import org.springframework.web.bind.annotation.*
+
 
 @RestController
-class HelloWorldController() {
+class HelloWorldController(private val carReactiveTestRepository: CarReactiveTestRepository) {
+
+    private val DELAY_PER_ITEM_MS = 100
+
     @GetMapping("/default")
     fun hello(): String {
         return "Hello World!"
@@ -44,6 +48,22 @@ class HelloWorldController() {
         return Flux.zip( interval, a ).map{it.t2}
     }
 
+    @PostMapping("/car-reactive")
+    fun saveCarFlux(@RequestBody car: Car): Mono<Car> {
+        return carReactiveTestRepository.save(car)
+    }
+
+    @GetMapping("/car-reactive")
+    fun getCarFlux(): Flux<Car> {
+        return carReactiveTestRepository.findAll().delayElements(Duration.ofMillis(DELAY_PER_ITEM_MS.toLong()))
+    }
+
+    @GetMapping("/car-reactive-paged")
+    fun getCarFlux(@RequestParam(name = "page") page: Int,
+                     @RequestParam(name = "size") size: Int): Flux<Car> {
+        return carReactiveTestRepository.retrieveAllCarPaged(PageRequest.of(page, size))
+                .delayElements(Duration.ofMillis(DELAY_PER_ITEM_MS.toLong()))
+    }
 }
 
 

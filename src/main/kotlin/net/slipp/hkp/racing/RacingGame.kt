@@ -1,9 +1,10 @@
 package racing
 
 import net.slipp.hkp.racing.Car
-import kotlin.concurrent.thread
+import net.slipp.hkp.racing.Race
 
 data class RacingGame(
+        var racingRound: Int,
         var gameStatus: GameStatus,
         var cars: MutableSet<Car>,
         var raceList: MutableSet<Race>,
@@ -13,8 +14,10 @@ data class RacingGame(
         var announcement: String) {
 
     constructor() : this (
-        GameStatus.READY, mutableSetOf(), mutableSetOf(), mutableListOf(), 10, 0, "레이싱 경기가 곧 시작됩니다."
+        1, GameStatus.READY, mutableSetOf(), mutableSetOf(), mutableListOf(), 10, 0, "레이싱 경기가 곧 시작됩니다."
     )
+
+    var winners: List<Race> = arrayListOf()
 
     fun isReady(): Boolean = (gameStatus == GameStatus.READY)
     fun getRemainTurns(): Int = totalTurns - currentTurn
@@ -48,7 +51,7 @@ data class RacingGame(
     }
 
     fun play() {
-        thread(start = true) {
+//        thread(start = true) {
 
             for (i in 1..totalTurns) {
 
@@ -67,8 +70,9 @@ data class RacingGame(
 
             }
             endRace()
+            checkWinners()
             announceWinners()
-        }
+//        }
     }
 
     fun endRace() {
@@ -77,36 +81,12 @@ data class RacingGame(
     }
     fun announceWinners() {
         // 반환된 race 리스트에서 차 이름만 ', ' 로 join 하여 출력함.
-        announcement = "우승자는 " + makeWinners().joinToString {it.car.name} + "입니다!!!"
+        announcement = "우승자는 " + winners.joinToString {it.car.name} + "입니다!!!"
     }
 
-    fun makeWinners(): List<Race> {
+    fun checkWinners() {
         // raceList 중 가장 큰 distance를 키로 가지는 race 그룹을 반환
-        return raceList.groupBy { it.distance }.maxBy { it.key }!!.value
-    }
-
-    data class Race(val car: Car, var distance: Int) {
-
-        fun canForward(): Boolean {
-            return when {
-                ( Math.random() * 10 ) >= 4 -> true
-                else -> false
-            }
-        }
-
-        fun forward() {
-            if (canForward()) {
-                distance += 1
-            }
-        }
-
-        override fun equals(other: Any?): Boolean {
-            return car.equals((other as Race).car)
-        }
-
-        override fun hashCode(): Int {
-            return car.hashCode()
-        }
+        winners = raceList.groupBy { it.distance }.maxBy { it.key }!!.value
     }
 
     enum class GameStatus {
