@@ -58,7 +58,7 @@
             </div>
         </div>
         <form class="form-lotto" method="post" action="/racing/game/start">
-            Count 수 : <input type="number" name="turn" value="10">
+            <span id='turnArea'>Count 수 : <input type="number" name="turn" value="10"></span>
 
             <div class="submit-button">
                 <button id="btn" class="btn btn-lg btn-primary btn-block" type="submit">경주 시작!</button>
@@ -82,18 +82,22 @@
                 switch (gameStatus) {
                     case "READY":
                         setBtnText("경주 시작!");
+                        showTurnArea();
                         break;
                     case "RACING":
                         announcement(game["announcement"] + " [ " + game["currentTurn"] + " / " + game["totalTurns"] + " ]");
                         setBtnText("중간 합류하기!");
+                        hideTurnArea();
                         break;
                     case "END":
                         announcement(game["announcement"]);
                         setBtnText("결과 보러가기!");
+                        showTurnArea();
                         break;
 
                     default:
                         setBtnText("gameStatus : " + gameStatus);
+                        showTurnArea();
                 }
                 drawCars(game["cars"]);
 
@@ -104,5 +108,11 @@
     // 경기 대기..
     ready();
 
+    function hideTurnArea() {
+        $('#turnArea').hide();
+    }
+    function showTurnArea() {
+        $('#turnArea').show();
+    }
 </script>
 </html>
