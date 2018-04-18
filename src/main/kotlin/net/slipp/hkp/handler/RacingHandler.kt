@@ -75,9 +75,13 @@ class RacingHandler(val resultReactiveRepository: ResultReactiveRepository) {
                     .flatMap {
                         val formData = it.toSingleValueMap()
                         val laps = formData["turn"]!!.toInt()
+                        val status = formData["status"]!!.toString()
+                        println("status ::: " + status)
+
                         thread(start = true) {
                             racingGame.playGame(laps)
-                            saveResult(racingGame.racingRound, racingGame.winners)
+                            if(status.equals(RacingGame.GameStatus.READY.toString()))
+                                    saveResult(racingGame.racingRound, racingGame.winners)
                         }
                         goPageWithObject("result", racingGame)
                     }
