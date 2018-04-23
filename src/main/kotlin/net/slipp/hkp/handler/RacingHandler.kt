@@ -3,6 +3,7 @@ package net.slipp.hkp.handler
 import net.slipp.hkp.racing.Race
 import net.slipp.hkp.racing.RacingResult
 import net.slipp.hkp.repository.ResultReactiveRepository
+import net.slipp.hkp.repository.ResultRepository
 import org.springframework.http.codec.ServerSentEvent
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyExtractors
@@ -17,12 +18,19 @@ import java.time.Duration
 import kotlin.concurrent.thread
 
 @Component
-class RacingHandler(val resultReactiveRepository: ResultReactiveRepository) {
+class RacingHandler(val resultReactiveRepository: ResultReactiveRepository, val resultRepository: ResultRepository) {
 
     var racingGame: RacingGame = RacingGame()
 
     fun findLastRacingResult(): RacingResult {
-        return resultReactiveRepository.findAll().last(RacingResult()).block()
+
+        val results = resultRepository.findAll()
+
+        if (results.isEmpty()) {
+            return results.last()
+        }else {
+            return RacingResult()
+        }
     }
 
     fun index(): Mono<ServerResponse> {
